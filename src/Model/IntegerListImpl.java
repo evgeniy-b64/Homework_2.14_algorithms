@@ -7,22 +7,22 @@ import java.util.Arrays;
 
 public class IntegerListImpl implements IntegerList {
     private static final int DEFAULT_SIZE = 17;
+
     private static Integer[] storage;
     private static int actualSize;
 
     public IntegerListImpl(int size) {
-        storage = new Integer[size];
+        this.storage = new Integer[size];
     }
 
     public IntegerListImpl() {
-        storage = new Integer[DEFAULT_SIZE];
+        this.storage = new Integer[DEFAULT_SIZE];
     }
 
 /*
     private Integer[] extendStorage() {
         return new String[storage.length * 3 / 2 + 1];
     }
-
  */
 
     // Добавление элемента.
@@ -100,7 +100,9 @@ public class IntegerListImpl implements IntegerList {
     // Вернуть true/false;
     @Override
     public boolean contains(Integer item) {
-        return indexOf(item) != -1;
+        Integer[] copy = toArray();
+        sortInsertion(copy);
+        return binarySearch(copy, item);
     }
 
     // Поиск элемента.
@@ -182,5 +184,83 @@ public class IntegerListImpl implements IntegerList {
 
     private void validateSize() {
         if (actualSize == storage.length) throw new StorageIsFullException("Массив заполнен");
+    }
+
+    // метод по перемещению элементов местами
+    private static void swapElements(Integer[] arr, int indexA, int indexB) {
+        int tmp = arr[indexA];
+        arr[indexA] = arr[indexB];
+        arr[indexB] = tmp;
+    }
+
+    @Override
+    // Пузырьковая сортировка
+    public void sortBubble(Integer[] arr) {
+        for (int i = 0; i < arr.length - 1; i++) {
+            for (int j = 0; j < arr.length - 1 - i; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    swapElements(arr, j, j + 1);
+                }
+            }
+        }
+    }
+
+    @Override
+    // Сортировка выбором
+    public void sortSelection(Integer[] arr) {
+        for (int i = 0; i < arr.length - 1; i++) {
+            int minElementIndex = i;
+            for (int j = i + 1; j < arr.length; j++) {
+                if (arr[j] < arr[minElementIndex]) {
+                    minElementIndex = j;
+                }
+            }
+            swapElements(arr, i, minElementIndex);
+        }
+    }
+
+    @Override
+    // Сортировка вставкой
+    public void sortInsertion(Integer[] arr) {
+        for (int i = 1; i < arr.length; i++) {
+            int temp = arr[i];
+            int j = i;
+            while (j > 0 && arr[j - 1] >= temp) {
+                arr[j] = arr[j - 1];
+                j--;
+            }
+            arr[j] = temp;
+        }
+    }
+
+    // Линейный поиск
+    public boolean linearSearch(Integer[] arr, int element) {
+        for (int i : arr) {
+            if (i == element) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Бинарный поиск
+    public boolean binarySearch(Integer[] arr, int element) {
+        int min = 0;
+        int max = arr.length - 1;
+
+        while (min <= max) {
+            int mid = (min + max) / 2;
+
+            if (element == arr[mid]) {
+                return true;
+            }
+
+            if (element < arr[mid]) {
+                max = mid - 1;
+            } else {
+                min = mid + 1;
+            }
+        }
+        return false;
     }
 }
